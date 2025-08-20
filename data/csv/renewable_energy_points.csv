@@ -1,0 +1,10 @@
+id,name,type,latitude,longitude,capacity_mw,annual_generation_gwh,capacity_factor,status,commissioning_year,operator,region
+1,KT Redcometal Fort-Shevchenko,wind,44.501504,50.258737,43.6,114,0.30,operational,2020,Joint Venture KT Redcometal Company LLP,Mangystau
+2,BEST-Groups Tupkaran,hybrid,43.769082,51.098803,5,15,0.34,operational,2021,BEST-Groups of NC LLP,Mangystau
+3,WES Zhangiz Karakiya,wind,43.600907,52.119887,5,13,0.30,operational,2021,WES Zhangiz,Mangystau
+4,WES Service Karakiya,wind,43.529444,52.169444,10,26,0.30,operational,2021,WES Service,Mangystau
+5,Sarkylmas Kuat,wind,43.460000,52.128889,50,131,0.30,operational,2022,Sarkylmas Kuat LLP,Mangystau
+6,Solar Energy-2 Batyr,solar,43.630290,51.408113,2,3.5,0.20,operational,2021,Group Independent LLP,Mangystau
+7,WindEnergyTech Isatay,wind,46.916667,50.652778,52.8,138,0.30,operational,2022,WindEnergyTechnologies LLP,Atyrau
+8,Zhelenergo Kensahara,wind,50.666667,56.577500,0.45,1.2,0.30,operational,2020,Zhelenergo LLP,Aktobe
+9,ArmWind Badamsha,wind,50.498700,58.260180,48,126,0.30,operational,2023,ArmWind LLP,Aktobe

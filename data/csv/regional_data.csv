@@ -1,0 +1,21 @@
+region_name,region_name_en,wind_potential_gw,solar_potential_gw,freshwater_mln_m3,brackish_water_mln_m3,groundwater_mln_m3,wastewater_mln_m3
+Ақмола облысы,Akmola Region,15,10,84.5,0,28.3,100
+Ақтөбе облысы,Aktobe Region,20,15,43.1,0,111.0,50
+Алматы облысы,Almaty Region,10,12,134,10,49.5,150
+Атырау облысы,Atyrau Region,25,18,69.9,500,81.3,30
+Батыс Қазақстан облысы,West Kazakhstan Region,18,14,10.5,0,2.5,40
+Жамбыл облысы,Jambyl Region,8,20,23.8,0,3.7,80
+Жетісу облысы,Jetisu Region,12,15,800,10,200,60
+Қарағанды облысы,Karaganda Region,22,16,407,0,88.0,120
+Қостанай облысы,Kostanay Region,25,12,7.1,0,30.1,90
+Қызылорда облысы,Kyzylorda Region,15,22,,10,46.4,50
+Маңғыстау облысы,Mangystau Region,30,25,55.1,600,93.3,20
+Павлодар облысы,Pavlodar Region,20,14,275.2,0,3.5,100
+Солтүстік Қазақстан облысы,North Kazakhstan Region,18,10,0,0,12.7,70
+Түркістан облысы,Turkistan Region,10,24,10.4,0,23.3,110
+Ұлытау облысы,Ulytau Region,20,18,,10,29.4,30
+Шығыс Қазақстан облысы,East Kazakhstan Region,15,12,,0,100.3,80
+Абай облысы,Abai Region,18,15,,0,170.7,40
+Алматы,Almaty,0,0,0,0,0,118
+Астана,Astana,0,0,0,0,0,92.4
+Шымкент,Shymkent,0,0,0,0,0,54.7

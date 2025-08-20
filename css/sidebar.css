@@ -1,0 +1,272 @@
+/* Sidebar Container */
+.sidebar {
+    width: 320px;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Hydrogen Toggle */
+.hydrogen-toggle {
+    display: flex;
+    background-color: var(--light);
+    padding: 5px;
+    margin: 10px;
+    border-radius: var(--border-radius);
+    gap: 5px;
+}
+
+.hydrogen-toggle button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.hydrogen-toggle button:hover {
+    opacity: 0.8;
+}
+
+.hydrogen-toggle button.green.active {
+    background-color: var(--green);
+    color: white;
+}
+
+.hydrogen-toggle button.blue.active {
+    background-color: var(--blue);
+    color: white;
+}
+
+.hydrogen-toggle button.yellow.active {
+    background-color: var(--dark-yellow);
+    color: white;
+}
+
+/* Sidebar Panels */
+#sidebar-panels {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+/* Special Panel Styles for Different Modes */
+.green-mode-panel {
+    border-left: 3px solid var(--green);
+}
+
+.blue-mode-panel {
+    border-left: 3px solid var(--blue);
+}
+
+.derivatives-mode-panel {
+    border-left: 3px solid var(--dark-yellow);
+}
+
+/* Input Group Styles */
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.input-row .form-group {
+    flex: 1;
+}
+
+/* Range Slider with Value Display */
+.slider-group {
+    position: relative;
+}
+
+.slider-value {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #ddd;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.checkbox-item label {
+    margin: 0;
+    font-weight: normal;
+}
+
+/* Info Tooltips - Fixed positioning and width */
+.info-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 16px;
+    font-size: 12px;
+    cursor: help;
+    margin-left: 5px;
+    position: relative;
+}
+
+/* Tooltip that appears above and doesn't get cut off */
+.info-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    background-color: var(--dark);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: normal; /* Allow text wrapping */
+    z-index: 10000;
+    
+    /* Position above the icon instead of to the right */
+    bottom: 100%; /* Above the icon */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%) translateY(-8px); /* Center and add gap */
+    
+    /* Fixed width to prevent cutoff */
+    width: 220px;
+    max-width: 220px;
+    
+    /* Initially hidden */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    
+    /* Better readability */
+    line-height: 1.4;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Arrow pointing down to the icon */
+.info-icon::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--dark);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Show tooltip on hover */
+.info-icon:hover::after,
+.info-icon:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* Collapsible Sections */
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.collapsible-header:hover {
+    color: var(--primary);
+}
+
+.collapse-icon {
+    transition: transform 0.3s ease;
+}
+
+.collapsible-header.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-indicator.active {
+    background-color: var(--green);
+}
+
+.status-indicator.inactive {
+    background-color: #ccc;
+}
+
+.status-indicator.warning {
+    background-color: var(--warning);
+}

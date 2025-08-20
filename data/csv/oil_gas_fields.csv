@@ -1,0 +1,58 @@
+﻿id,name,latitude,longitude,type,methane_percent,ethane_percent,propane_percent,butane_percent,pentane_percent,others,operator
+1,Uzen,43.453661,52.749762,APG,70,14,9,1,0,6,OzenMunayGas
+2,Karamandybas,43.497587,52.632055,APG,70,14,9,1,0,6,OzenMunayGas
+3,Kalamkas,45.355174,51.896266,NG,96,1,0,0,0,4,MangystauMunayGas
+4,Zhetybai,43.516713,52.115888,APG,72,11,7,1,1,8,MangystauMunayGas
+5,Asar,43.551992,52.393127,APG,71,13,7,1,1,7,MangystauMunayGas
+6,Southern Zhetybai,43.473793,52.142459,APG,83,10,6,1,0,0,MangystauMunayGas
+7,Bekturly,43.501078,52.199053,APG,74,10,7,1,1,8,MangystauMunayGas
+8,Eastern Zhetybai,43.542183,52.44264,APG,70,14,7,2,1,7,MangystauMunayGas
+9,Atanbai,43.707413,51.474806,APG,55,18,12,3,2,11,MangystauMunayGas
+10,Ayrantakyr,43.689026,52.110747,APG,69,10,7,2,1,12,MangystauMunayGas
+11,Northern Akkar,43.784384,51.827614,APG,60,18,11,2,1,9,MangystauMunayGas
+12,Oymasha,43.341431,51.437505,APG,68,15,8,1,1,8,MangystauMunayGas
+13,Pridorozhnoye,43.52107,52.00121,APG,69,14,7,1,1,8,MangystauMunayGas
+14,Northern Karagie,43.686459,51.664563,APG,69,13,7,1,1,10,MangystauMunayGas
+15,Alatyube,43.70215,51.562706,APG,62,15,9,3,1,10,MangystauMunayGas
+16,Burmasha,43.629728,52.439647,APG,76,12,6,1,0,5,MangystauMunayGas
+17,S. Balgimbayev,47.10025,51.013487,APG,72,15,5,3,1,4,ZhaiykMunayGas (EMG)
+18,Kamyshtovoye South-Western,47.128419,51.203465,APG,63,18,9,5,1,3,ZhaiykMunayGas (EMG)
+19,Kamyshtovoye South-Eastern,47.122362,51.382962,APG,76,12,4,2,1,4,ZhaiykMunayGas (EMG)
+20,Zhanatalap,47.098223,50.836287,APG,86,4,1,1,0,8,ZhaiykMunayGas (EMG)
+21,Gran,47.244758,50.968676,APG,77,14,5,2,0,1,ZhaiykMunayGas (EMG)
+22,Zaburunje,46.769491,50.171336,APG,89,6,1,1,0,3,ZhaiykMunayGas (EMG)
+23,South-Eastern Novobogatin,47.21725,51.245801,APG,45,14,16,13,6,5,ZhaiykMunayGas (EMG)
+24,Novobogat South-Eastern (Overhang),47.36067,51.18807,APG,55,19,13,6,2,4,ZhaiykMunayGas (EMG)
+25,Akingen,46.583674,54.139691,APG,96,0,0,1,0,3,ZhylyoiMunayGas (EMG)
+26,Akkuduk,46.401491,53.984868,APG,75,7,4,4,2,7,ZhylyoiMunayGas (EMG)
+27,Kisimbai,46.298352,54.385439,APG,76,7,6,5,2,5,ZhylyoiMunayGas (EMG)
+28,S. Nurzhanov,45.902435,53.289413,APG,85,5,5,2,1,3,ZhylyoiMunayGas (EMG)
+29,S. Nurzhanov (North-West Wing),45.942435,53.279413,APG,79,6,7,4,1,3,ZhylyoiMunayGas (EMG)
+30,Western Prorva NG,45.876952,53.142609,NG,87,4,1,1,1,6,ZhylyoiMunayGas (EMG)
+31,Western Prorva APG,45.886952,53.152609,APG,81,8,5,2,1,3,ZhylyoiMunayGas (EMG)
+32,Dosmukhametovskoye,45.98673,53.519083,APG,72,8,9,5,2,3,ZhylyoiMunayGas (EMG)
+33,Aktobe,45.909353,53.471157,APG,89,3,2,1,0,6,ZhylyoiMunayGas (EMG)
+34,Botakhan,46.938419,53.147246,APG,80,12,3,2,0,2,DossorMunayGas (EMG)
+35,Northern Zholdybai,47.832681,53.475753,APG,92,0,0,0,0,7,DossorMunayGas (EMG)
+36,Eastern Makat,47.651664,53.455969,APG,80,12,3,2,0,2,DossorMunayGas (EMG)
+37,B. Zholamanov,48.009542,54.409168,APG,91,1,0,0,0,8,KainarMunayGas (EMG)
+38,Uaz,47.916431,53.770819,APG,95,0,0,0,0,5,KainarMunayGas (EMG)
+39,Uaz East,47.934536,53.822423,APG,95,0,0,0,0,5,KainarMunayGas (EMG)
+40,Uaz North,47.996431,53.770819,APG,74,7,4,4,2,9,KainarMunayGas (EMG)
+41,Karazhanbas,45.135337,51.396274,APG,93,1,1,0,0,5,KarazhanbasMunay
+42,Akshabulak Central,45.952258,65.724513,APG,66,14,10,4,1,0,KazGerMunay
+43,Akshabulak East,46.031181,65.760071,APG,62,13,12,7,2,0,KazGerMunay
+44,Akshabulak South,45.899046,65.734844,APG,61,15,12,6,2,0,KazGerMunay
+45,Nuraly,46.1163,65.396223,APG,72,12,8,3,1,0,KazGerMunay
+46,Aksai,45.945823,65.430937,APG,82,12,2,1,0,0,KazGerMunay
+47,Rozhkovskoye,51.3,52.3406,APG,79,9,4,2,0,6,Ural Oil and Gas
+48,Kozhasay,48.1903,57.164,APG,82,7,4,2,1,5,KazakhOil Aktobe
+49,Alibekmola,48.4759,57.669,APG,81,7,4,2,1,4,KazakhOil Aktobe
+50,Urikhtau East,48.36,57.492,APG,80,7,3,1,0,9,Urikhtau Operating
+51,Urikhtau Central,48.409694,57.356,NG,79,7,3,3,1,7,Urikhtau Operating
+52,Saztobe,45.773,54.05548,APG,77,8,4,2,1,8,KazakhTurkMunay
+53,Elemess West,45.9544,53.906,APG,77,8,5,1,1,8,KazakhTurkMunay
+54,Laktybai,47.877,56.8965,APG,80,7,4,0,0,7,KazakhTurkMunay
+55,Karatyube South,47.906,56.4996,APG,75,9,6,1,0,9,KazakhTurkMunay
+56,Northern Kotyrtas,47.73,54.23,APG,84,7,2,1,0,5,KainarMunayGas (EMG)
+57,Eastern Moldabek,47.6816,54.167,APG,95,0,0,0,0,4,KainarMunayGas (EMG)

@@ -1,0 +1,6 @@
+id,city,name,latitude,longitude,capacity_m3_day,discharge_volume_mln_m3_year,treatment_level,discharge_type,available_for_reuse_percent,operator,year
+1,Almaty,Almaty Su,43.2220,76.8512,324000,118,tertiary,water_body,70,Almaty Su,2024
+2,Astana,Astana Su Arnasy,51.1605,71.4704,253000,92.4,tertiary,water_body,80,Astana Su Arnasy,2024
+3,Kostanay,Kostanay Su,53.2144,63.6246,38356,14,secondary,pond_evaporator,50,Kostanay Su,2024
+4,Shymkent,Vodniye Resources Marketing,42.3417,69.5901,150000,54.7,secondary,pond_evaporator,60,Vodniye Resources Marketing,2024
+5,Atyrau,Atyrau Oblysy Su Arnasy,47.0997,51.9151,0,0,unknown,unknown,0,Atyrau Oblysy Su Arnasy,2024

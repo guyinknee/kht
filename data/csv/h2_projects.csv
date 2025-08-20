@@ -1,0 +1,2 @@
+id,name,type,city,latitude,longitude,capacity_mw,production_kt_year,technology,status,commissioning_year,operator,description
+1,KMGE Pilot H2,green,Atyrau,47.0997666,51.81511746,0.2,0.0036,PEM Electrolyzer,construction,2025,KazMunayGas,Small-scale pilot green hydrogen production facility in Atyrau
