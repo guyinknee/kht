@@ -89,26 +89,26 @@ const PopupManager = {
         
         // Renewable energy section
         html += `
-            <div class="popup-section-title">Renewable Energy Potential</div>
+            <div class="popup-section-title">Resource & Siting</div>
             <div class="popup-metric">
-                <span class="popup-metric-label">🌬️ Wind Energy:</span>
-                <span class="popup-metric-value">${regionalData?.wind_potential_gw || 'N/A'} GW</span>
+                <span class="popup-metric-label">🗺️ Available land:</span>
+                <span class="popup-metric-value">${regionalData?.available_land_km2 ?? 'N/A'} km²</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">☀️ Solar Energy:</span>
-                <span class="popup-metric-value">${regionalData?.solar_potential_gw || 'N/A'} GW</span>
+                <span class="popup-metric-label">☀️ Solar Energy Potential:</span>
+                <span class="popup-metric-value">${regionalData?.pvout_kwh_kwp_yr ?? '—'} kWh/kWp·yr</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">⚡ Total Renewable:</span>
-                <span class="popup-metric-value" style="font-weight: bold; color: var(--green);">
-                    ${regionalData ? 
-                    (parseFloat(regionalData.wind_potential_gw || 0) + 
-                    parseFloat(regionalData.solar_potential_gw || 0)).toFixed(1) : 
-                    'N/A'} GW
-                </span>
+                <span class="popup-metric-label">🌬️ Wind Energy Potential:</span>
+                <span class="popup-metric-value">${regionalData?.wpd_w_m2_10pct ?? 'N/A'} W/m² · ${regionalData?.ws_m_s_10pct ?? '—'} m/s</span>
+            </div>
+            <div class="popup-metric">
+            <span class="popup-metric-label">💦 Hydropower Potential:</span>
+            <span class="popup-metric-value">
+                ${regionalData?.hydro_potential_mw ?? '—'} MW 
+            </span>
             </div>
         </div>
-        
         <div class="popup-section">
             <div class="popup-section-title">Water Resources (Million m³/year)</div>
             <div class="popup-metric">
@@ -139,37 +139,28 @@ const PopupManager = {
                 </span>
             </div>
         </div>
-        
-        <div class="popup-section">
-            <div class="popup-section-title">Green H₂ Production Potential</div>
-            <div class="popup-metric">
-                <span class="popup-metric-label">Water-Limited H₂:</span>
-                <span class="popup-metric-value">${this.calculateH2FromWaterMln(regionalData)} kt/year</span>
-            </div>
-            <div class="popup-metric">
-                <span class="popup-metric-label">Energy-Limited H₂:</span>
-                <span class="popup-metric-value">${this.calculateH2FromEnergy(regionalData)} kt/year</span>
-            </div>
-            <div class="popup-metric">
-                <span class="popup-metric-label">Limiting Factor:</span>
-                <span class="popup-metric-value" style="font-weight: bold;">
-                    ${this.determineLimitingFactorMln(regionalData)}
-                </span>
-            </div>
-        </div>`;
+    `;
         
         // Add chart only if we have data
         if (regionalData) {
             html += `
-            <div class="popup-chart">
-                <canvas id="region-resources-chart" width="300" height="150"></canvas>
+            <div class="popup-section">
+                <div class="popup-section-title">Quick Visuals</div>
+                <div class="popup-chart" style="margin-bottom:12px;">
+                <div style="font-size:12px; color:#666; margin-bottom:6px;">Region vs Kazakhstan Avg</div>
+                <canvas id="region-compare-chart" width="320" height="160"></canvas>
+                </div>
+                <div class="popup-chart">
+                <div style="font-size:12px; color:#666; margin-bottom:6px;">Water Resources Breakdown (mln m³/yr)</div>
+                <canvas id="region-water-chart" width="320" height="160"></canvas>
+                </div>
             </div>`;
-        } else {
+            } else {
             html += `
             <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 4px; border: 1px solid #ffc107;">
                 <strong>⚠️ Note:</strong> Regional data not available. Please ensure the region name matches the data file.
             </div>`;
-        }
+            }
         
         return html;
     },
@@ -470,32 +461,51 @@ const PopupManager = {
     },
     
     // Initialize charts in popup
+    // Initialize charts in popup
     initializeCharts(data, config) {
-        console.log('Initializing charts for:', config.dataSource);
-        
-        // Destroy any existing charts first
-        if (window.popupCharts) {
-            Object.values(window.popupCharts).forEach(chart => {
-                if (chart) chart.destroy();
-            });
+    console.log('Initializing charts for:', config.dataSource);
+
+    // Destroy any existing charts first
+    if (window.popupCharts) {
+        Object.values(window.popupCharts).forEach(ch => { try { ch?.destroy(); } catch(e){} });
+    }
+    window.popupCharts = {};
+
+    // Gas composition chart
+    const compositionChartCanvas = document.getElementById('composition-chart');
+    if (compositionChartCanvas) {
+        console.log('Creating composition chart');
+        this.createCompositionChart(data);
+    }
+
+    // Storage chart
+    const storageChartCanvas = document.getElementById('storage-chart');
+    if (storageChartCanvas) {
+        console.log('Creating storage chart');
+        this.createStorageChart(data);
+    }
+
+    // --- Region Quick Visuals (add this block) ---
+    const isRegionLayer = ['regionsWithBorders', 'regions'].includes(config?.dataSource);
+    const compareEl = document.getElementById('region-compare-chart');
+    const waterEl   = document.getElementById('region-water-chart');
+    if ((compareEl || waterEl) && isRegionLayer) {
+        const regionName = data.name_en || data.name || data.NAME_1;
+        const regionalData = regionName ? DataLoader.getRegionalData(regionName) : null;
+        if (regionalData) {
+        if (compareEl) this.createRegionCompareIndexChart(regionalData); // apples-to-apples (KZ = 100) with dashed 100% line
+        if (waterEl)   this.createRegionWaterChart(regionalData);        // water breakdown pie
         }
-        window.popupCharts = {};
-        
-        // Gas composition chart
-        const compositionChartCanvas = document.getElementById('composition-chart');
-        if (compositionChartCanvas) {
-            console.log('Creating composition chart');
-            this.createCompositionChart(data);
-        }
-        
-        // Storage chart
-        const storageChartCanvas = document.getElementById('storage-chart');
-        if (storageChartCanvas) {
-            console.log('Creating storage chart');
-            this.createStorageChart(data);
-        }
+    }
+
+    // Optional: if you still show single-canvas version
+    const singleEl = document.getElementById('region-resources-chart');
+    if (singleEl && isRegionLayer) {
+        const regionName = data.name_en || data.name || data.NAME_1;
+        const regionalData = regionName ? DataLoader.getRegionalData(regionName) : null;
+        if (regionalData) this.createRegionResourcesChart(singleEl, regionalData);
+    }
     },
-    
     // Create gas composition chart
     createCompositionChart(data) {
         const ctx = document.getElementById('composition-chart').getContext('2d');
@@ -761,6 +771,217 @@ const PopupManager = {
             }
         });
     },
+
+    // Normalized (KZ = 100) bars + dashed 100% baseline
+    createRegionResourcesChart(canvasEl, regionalData) {
+    if (!canvasEl || !regionalData) return;
+    const ctx = (canvasEl.getContext ? canvasEl : document.getElementById(canvasEl))?.getContext('2d');
+    if (!ctx) return;
+
+    // Kazakhstan baselines
+    const KZ = { pvout: 1363, wpd: 602, ws: 8.27 };
+
+    // number -> finite or 0
+    const num0 = (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
+    };
+
+    // Region raw values (keys used in your popup)
+    const rPV  = num0(regionalData.pvout_kwh_kwp_yr);
+    const rWPD = num0(regionalData.wpd_w_m2_10pct);
+    const rWS  = num0(regionalData.ws_m_s_10pct);
+
+    // Normalize to KZ = 100
+    const regIdx = [
+        KZ.pvout ? (rPV  / KZ.pvout) * 100 : 0,
+        KZ.wpd   ? (rWPD / KZ.wpd)   * 100 : 0,
+        KZ.ws    ? (rWS  / KZ.ws)    * 100 : 0
+    ].map(v => Math.max(0, v));
+
+    const labels = ['PV Output', 'Wind Power Density', 'Mean Wind Speed'];
+
+    // Clean up previous instance
+    window.popupCharts ??= {};
+    window.popupCharts.regionResources?.destroy?.();
+
+    // Colors per bar (PVout, WPD, MWS)
+    const BAR_COLORS = ['#f6c90e', '#0d47a1', '#b71c1c']; // yellow, dark blue, dark red
+
+    window.popupCharts.regionResources = new Chart(ctx, {
+        type: 'bar',
+        data: {
+        labels,
+        datasets: [
+            // Region bars (each bar its own color)
+            {
+            label: 'Region (KZ = 100)',
+            data: regIdx,
+            backgroundColor: BAR_COLORS,
+            borderRadius: 4
+            },
+            // 100% KZ baseline (dashed line)
+            {
+            type: 'line',
+            label: 'Kazakhstan = 100%',
+            data: [100, 100, 100],
+            borderColor: '#6b7280',   // neutral gray
+            borderDash: [6, 6],
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false
+            }
+        ]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,     // make sure parent gives a fixed height
+        animation: false,
+        resizeDelay: 150,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+            callbacks: {
+                // Show both normalized % and raw values
+                label: (c) => {
+                if (c.dataset.type === 'line') return 'Kazakhstan: 100%';
+                const i = c.dataIndex;
+                const raw = [rPV, rWPD, rWS][i];
+                const units = ['kWh/kWp·yr', 'W/m²', 'm/s'][i];
+                return `${c.label}: ${c.parsed.y.toFixed(0)}% of KZ  (Region = ${raw.toFixed(2)} ${units})`;
+                }
+            }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: {
+            min: 0,
+            // Give headroom above the taller of 100% or region bars
+            suggestedMax: Math.max(120, Math.ceil(Math.max(...regIdx, 100) / 20) * 20),
+            grid: { color: '#eee' },
+            ticks: { display: false } // hide y-axis numbers
+            }
+        }
+        }
+    });
+    },
+    // helper: finite number or 0
+    num0(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; },
+
+    // Apples-to-apples normalized comparison (KZ = 100) with dashed 100% line
+    createRegionCompareIndexChart(regionalData) {
+    const el = document.getElementById('region-compare-chart');
+    if (!el) return;
+    const ctx = el.getContext('2d');
+
+    // Kazakhstan baseline
+    const KZ = { pvout: 1363, wpd: 602, ws: 8.27 };
+
+    // Region values (use your keys)
+    const rPV  = this.num0(regionalData?.pvout_kwh_kwp_yr);
+    const rWPD = this.num0(regionalData?.wpd_w_m2_10pct);
+    const rWS  = this.num0(regionalData?.ws_m_s_10pct);
+
+    // Normalize to KZ = 100
+    const regIdx = [
+        KZ.pvout ? (rPV  / KZ.pvout) * 100 : 0,
+        KZ.wpd   ? (rWPD / KZ.wpd)   * 100 : 0,
+        KZ.ws    ? (rWS  / KZ.ws)    * 100 : 0
+    ].map(v => Math.max(0, v));
+
+    const labels = ['PV Output', 'Wind Power Density', 'Mean Wind Speed'];
+    const BAR_COLORS = ['#f6c90e', '#0d47a1', '#b71c1c']; // yellow, dark blue, dark red
+
+    window.popupCharts ??= {};
+    window.popupCharts.regionCompare?.destroy?.();
+
+    window.popupCharts.regionCompare = new Chart(ctx, {
+        type: 'bar',
+        data: {
+        labels,
+        datasets: [
+            {
+            label: 'Region (KZ = 100)',
+            data: regIdx,
+            backgroundColor: BAR_COLORS,
+            borderRadius: 4
+            },
+            {
+            type: 'line',
+            label: 'Kazakhstan = 100%',
+            data: [100, 100, 100],
+            borderColor: '#6b7280',
+            borderDash: [6, 6],
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false
+            }
+        ]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        resizeDelay: 150,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+            callbacks: {
+                label: (c) => {
+                if (c.dataset.type === 'line') return 'Kazakhstan: 100%';
+                const raw = [rPV, rWPD, rWS][c.dataIndex];
+                const units = ['kWh/kWp·yr', 'W/m²', 'm/s'][c.dataIndex];
+                return `${c.label}: ${c.parsed.y.toFixed(0)}% of KZ (Region = ${raw.toFixed(2)} ${units})`;
+                }
+            }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: {
+            min: 0,
+            suggestedMax: Math.max(120, Math.ceil(Math.max(...regIdx, 100) / 20) * 20),
+            grid: { color: '#eee' },
+            ticks: { display: false } // hide y-axis numbers
+            }
+        }
+        }
+    });
+    },
+
+    // Water resources pie (auto-hides zero/empty slices)
+    createRegionWaterChart(regionalData) {
+    const el = document.getElementById('region-water-chart');
+    if (!el) return;
+    const ctx = el.getContext('2d');
+
+    const slices = [
+        { label: 'Freshwater',  value: this.num0(regionalData?.freshwater_mln_m3)  },
+        { label: 'Groundwater', value: this.num0(regionalData?.groundwater_mln_m3) },
+        { label: 'Brackish',    value: this.num0(regionalData?.brackish_water_mln_m3) },
+        { label: 'Treated WW',  value: this.num0(regionalData?.wastewater_mln_m3) }
+    ].filter(s => s.value > 0);
+
+    if (!slices.length) return;
+
+    window.popupCharts ??= {};
+    window.popupCharts.regionWater?.destroy?.();
+
+    window.popupCharts.regionWater = new Chart(ctx, {
+        type: 'pie',
+        data: {
+        labels: slices.map(s => s.label),
+        datasets: [{ data: slices.map(s => s.value) }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        plugins: { legend: { position: 'bottom' } }
+        }
+    });
+    },
     // Show pipeline popup
     showPipelinePopup(pipelineInfo, latlng) {
         const popup = document.getElementById('info-popup');
@@ -878,10 +1099,6 @@ const PopupManager = {
                     <span class="popup-metric-value">${point.market_size_mt || 10} Mt/year</span>
                 </div>
             </div>
-            <div class="chart-container">
-                <div class="chart-title">Export Route Economics</div>
-                <canvas id="export-chart" width="300" height="150"></canvas>
-            </div>
         `;
         
         content.innerHTML = html;
@@ -894,43 +1111,6 @@ const PopupManager = {
         setTimeout(() => {
             this.createExportChart(point);
         }, 100);
-    },
-
-    createExportChart(point) {
-        const ctx = document.getElementById('export-chart');
-        if (!ctx) return;
-        
-        new Chart(ctx.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Production', 'Transport', 'Delivered'],
-                datasets: [{
-                    label: 'H₂ Cost ($/kg)',
-                    data: [
-                        point.production_cost || 3,
-                        point.transport_cost || 1.5,
-                        point.delivered_price || 5
-                    ],
-                    backgroundColor: ['#4caf50', '#ff9800', '#2196f3']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: '$/kg H₂'
-                        }
-                    }
-                }
-            }
-        });
     },
 
     // Show station popup

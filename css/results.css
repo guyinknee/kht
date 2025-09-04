@@ -7,8 +7,8 @@
     background-color: white;
     border-radius: var(--border-radius);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    max-height: calc(100% - 40px);
-    overflow: hidden;
+    max-height: calc(100vh - 40px);
+    overflow: auto;   
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -49,22 +49,26 @@
     font-weight: 500;
 }
 
-.tab:hover {
-    background-color: #e0e0e0;
-}
-
+.tab:hover { background-color: #e0e0e0; }
 .tab.active {
     background-color: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Tab Content */
+/* Tab Content (scrolls) */
 .tab-content {
     padding: 15px;
-    overflow-y: auto;
+    overflow-y: auto;   /* already enabling scroll */
     flex: 1;
 }
-
+/* add this block */
+#tab-content {
+  padding: 15px;         /* move padding here if you like */
+  flex: 1 1 auto;        /* let this area take remaining height */
+  overflow-y: auto;      /* this is where the scrollbar lives */
+  min-height: 0;         /* critical for scroll in flex containers */
+}
+#tab-content { scrollbar-gutter: stable; }
 /* Metrics Grid */
 .metrics-grid {
     display: grid;
@@ -81,13 +85,9 @@
     transition: transform 0.2s ease;
 }
 
-.metric:hover {
-    transform: translateX(2px);
-}
+.metric:hover { transform: translateX(2px); }
 
-.metric-full {
-    grid-column: 1 / -1;
-}
+.metric-full { grid-column: 1 / -1; }
 
 .metric-label {
     font-size: 11px;
@@ -121,13 +121,8 @@
     gap: 4px;
 }
 
-.metric-change.positive {
-    color: var(--green);
-}
-
-.metric-change.negative {
-    color: var(--error);
-}
+.metric-change.positive { color: var(--green); }
+.metric-change.negative { color: var(--error); }
 
 /* Chart Container */
 .chart-container {
@@ -148,10 +143,7 @@
     align-items: center;
 }
 
-.chart-options {
-    display: flex;
-    gap: 8px;
-}
+.chart-options { display: flex; gap: 8px; }
 
 .chart-option {
     padding: 4px 8px;
@@ -161,16 +153,9 @@
     background-color: #f0f0f0;
     transition: all 0.2s ease;
 }
+.chart-option.active { background-color: var(--primary); color: white; }
 
-.chart-option.active {
-    background-color: var(--primary);
-    color: white;
-}
-
-.chart-wrapper {
-    position: relative;
-    height: 200px;
-}
+.chart-wrapper { position: relative; height: 200px; }
 
 /* Export Buttons */
 .export-buttons {
@@ -195,15 +180,8 @@
     transition: all 0.3s ease;
 }
 
-.export-btn:hover {
-    background-color: #00897b;
-    transform: translateY(-1px);
-}
-
-.export-btn::before {
-    content: '↓';
-    font-size: 14px;
-}
+.export-btn:hover { background-color: #00897b; transform: translateY(-1px); }
+.export-btn::before { content: '↓'; font-size: 14px; }
 
 /* Result Summary Cards */
 .summary-card {
@@ -224,27 +202,10 @@
     gap: 8px;
 }
 
-.summary-card-icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background-color: var(--primary-light);
-    color: var(--primary);
-}
-
-.summary-card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+.summary-card-content { display: flex; flex-direction: column; gap: 8px; }
 
 /* Progress Bars */
-.progress-bar-container {
-    margin: 10px 0;
-}
+.progress-bar-container { margin: 10px 0; }
 
 .progress-bar-label {
     font-size: 12px;
@@ -254,19 +215,8 @@
     justify-content: space-between;
 }
 
-.progress-bar {
-    height: 8px;
-    background-color: #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border-radius: 4px;
-    transition: width 0.5s ease;
-}
+.progress-bar { height: 8px; background-color: #e0e0e0; border-radius: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 4px; transition: width 0.5s ease; }
 
 /* Comparison View */
 .comparison-container {
@@ -275,25 +225,9 @@
     gap: 10px;
     margin-top: 15px;
 }
-
-.comparison-item {
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    text-align: center;
-}
-
-.comparison-label {
-    font-size: 11px;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.comparison-value {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--dark);
-}
+.comparison-item { padding: 10px; background-color: #f8f9fa; border-radius: 6px; text-align: center; }
+.comparison-label { font-size: 11px; color: #666; margin-bottom: 5px; }
+.comparison-value { font-size: 16px; font-weight: bold; color: var(--dark); }
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -302,16 +236,10 @@
         right: 20px;
         left: 20px;
     }
-    
-    .metrics-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .tabs {
-        flex-wrap: wrap;
-    }
-    
-    .tab {
-        flex: 1 1 45%;
-    }
+    .metrics-grid { grid-template-columns: 1fr; }
+    .tabs { flex-wrap: wrap; }
+    .tab { flex: 1 1 45%; }
 }
+
+/* Optional helper for future-use vertical stacking containers */
+.charts-vertical { display: flex; flex-direction: column; gap: 20px; }

@@ -195,7 +195,7 @@ document.getElementById('sidebar-panels').addEventListener('change', function(e)
                 
                 if (regionName === selectedName) {
                     // Update app state
-                    AppState.selectedRegion = regionName;
+                    AppState.selectedRegion = layer.feature;
                     
                     // Simulate click on the region
                     const bounds = layer.getBounds();
@@ -385,51 +385,101 @@ function createLayerItem(layer, isSublayer = false) {
     return layerItem;
 }
 
-// Perform Calculation
+function wireCalculateButton() {
+  const btn = document.getElementById('calculate-results') 
+           || document.getElementById('calculate-button')
+           || document.querySelector('[data-action="calculate"]');
+  if (!btn) {
+    console.warn('Calculate button not found. Add id="calculate-results" to the button.');
+    return;
+  }
+  btn.addEventListener('click', async () => {
+    console.log('[KHT] Calculate clicked. Mode=', AppState.mode);
+    await performCalculation();
+  });
+}
+document.addEventListener('DOMContentLoaded', wireCalculateButton);
+
 async function performCalculation() {
-    console.log('Performing calculation...');
-    
-    // Validate inputs
-    if (!validateInputs()) {
-        alert('Please check your input parameters');
-        return;
+  console.log('Performing calculation...');
+  try {
+    // Validate inputs (Green-safe)
+    const ok = validateInputs();
+    if (!ok) {
+      alert('Please check your input parameters');
+      console.warn('[KHT] validateInputs() returned false');
+      return;
     }
-    
-    // Collect parameters
+
     const params = collectParameters();
-    
-    // Perform calculation based on mode
     let results;
+
     switch (AppState.mode) {
-        case 'green':
-            results = await GreenHydrogenCalculator.calculate(params);
-            break;
-        case 'blue':
-            results = await BlueHydrogenCalculator.calculate(params);
-            break;
-        case 'derivatives':
-            results = await DerivativesCalculator.calculate(params);
-            break;
+      case 'green':
+        if (typeof GreenHydrogenCalculator === 'undefined' || !GreenHydrogenCalculator.calculate) {
+            throw new Error('GreenHydrogenCalculator is not available.');
+            }
+        results = await GreenHydrogenCalculator.calculate(params);
+        break;
+      case 'blue':
+        results = await BlueHydrogenCalculator.calculate(params);
+        break;
+      case 'derivatives':
+        results = await DerivativesCalculator.calculate(params);
+        break;
+      default:
+        throw new Error('Unknown mode: ' + AppState.mode);
     }
-    
-    // Store results
+
+    if (!results || typeof results !== 'object') {
+      throw new Error('Calculation returned no results.');
+    }
+
     AppState.results = results;
-    
-    // Display results
+    console.log('[KHT] Results ready:', results);
     ResultsManager.displayResults(results, AppState.mode);
+  } catch (err) {
+    console.error('Calculation error:', err);
+    alert('Calculation error: ' + (err?.message || err));
+    try {
+      ResultsManager.displayResults(
+        { lcoh: NaN, annualProduction: NaN, carbonIntensity: NaN },
+        AppState.mode
+      );
+    } catch {}
+  }
 }
 
-// Validate Inputs
 function validateInputs() {
-    // TODO: Implement comprehensive validation
+  const mode = AppState?.mode || 'green';
+  const hasRegion = !!(AppState?.selectedRegion);
+
+  if (!hasRegion) {
+    console.warn('[KHT] No region selected.');
+    // still allow calculation
+  }
+
+  if (mode === 'green') {
+    const resSel = document.getElementById('renewable-source');
+    const elzSel = document.getElementById('electrolyzer-type');
+    const drInp  = document.getElementById('discount-rate');
+    const lifeInp= document.getElementById('project-lifetime');
+
+    if (!resSel || !elzSel || !drInp || !lifeInp) {
+      console.warn('[KHT] Missing one of required inputs for Green.');
+      return true; // don’t block calc
+    }
     return true;
+  }
+
+  return true; // for other modes keep permissive
 }
 
 // Collect Parameters
 function collectParameters() {
     const params = {
         mode: AppState.mode,
-        inputs: { ...AppState.inputs },
+        inputs: AppState?.inputs ?? {},
         selectedRegion: AppState.selectedRegion,
         selectedPoint: AppState.selectedPoint
     };

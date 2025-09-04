@@ -258,7 +258,8 @@
     border-radius: 4px;
     min-height: 180px; /* Ensure minimum height for chart */
 }
-
+.popup-chart { position: relative; height: 260px; }     /* fixed parent height */
+.popup-chart canvas { width: 100% !important; height: 100% !important; } /* fill parent */
 .popup-header {
     padding: 12px 15px;
     background-color: var(--primary);

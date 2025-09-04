@@ -376,11 +376,29 @@ const DataLoader = {
     },
     
     // Get data by region
-    getRegionalData(regionName) {
-        const regionalData = AppState.data.regionalData.find(
-            r => r.region_name_en === regionName || r.region_name === regionName
-        );
-        return regionalData || null;
+    getRegionalData(nameEn) {
+        if (!nameEn) return null;
+
+        // We store parsed CSV rows at AppState.data.regionalData
+        const rows = (AppState?.data?.regionalData) || [];
+        if (!rows.length) return null;
+
+        // Normalize names (drop “region”, “oblysy”, squash spaces)
+        const norm = s => String(s || '')
+            .toLowerCase().trim()
+            .replace(/\s+region\b/, '')
+            .replace(/\s+oblysy\b/, '')
+            .replace(/\s+/g, ' ');
+
+        const target = norm(nameEn);
+
+        // Match by English name first, then Kazakh/Russian if needed
+        let row = rows.find(r => norm(r.region_name_en) === target);
+        if (row) return row;
+
+        row = rows.find(r => norm(r.region_name_en || '').includes(target) ||
+                            norm(r.region_name || '').includes(target));
+        return row || null;
     },
     
     // Get points within region
