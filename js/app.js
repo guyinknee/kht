@@ -55,36 +55,55 @@ window.AppState = {
     },
     results: null
 };
+// Lightweight loading helper
+const Loading = (() => {
+  const el = () => document.getElementById('app-loader');
+  const bar = () => document.getElementById('loader-bar-fill');
+  const txt = () => document.getElementById('loader-status');
+  let pct = 0;
+  function set(msg, p) {
+    pct = Math.max(0, Math.min(100, p));
+    if (bar()) bar().style.width = pct + '%';
+    if (txt() && msg) txt().textContent = msg;
+  }
+  function step(msg, delta) { set(msg, pct + delta); }
+  function show() { el()?.classList.remove('loader-hidden'); set('Starting…', 0); }
+  function hide() { set('Done', 100); setTimeout(() => el()?.classList.add('loader-hidden'), 150); }
+  return { set, step, show, hide };
+})();
 
-// Application Initialization
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Initializing Kazakhstan Hydrogen Interactive Tool...');
-    
-    try {
-        // Initialize map
-        await MapManager.initialize();
-        
-        // Load data
-        await DataLoader.loadAllData();
-        
-        // Initialize sidebar
-        SidebarManager.initialize();
-        
-        // Initialize results panel
-        ResultsManager.initialize();
-        
-        // Set initial mode
-        switchMode('green');
-        
-        // Setup event listeners
-        setupEventListeners();
-        
-        console.log('Application initialized successfully');
-    } catch (error) {
-        console.error('Error initializing application:', error);
-        alert('Error loading application. Please refresh the page.');
-    }
+  console.log('Initializing Kazakhstan Hydrogen Interactive Tool...');
+  Loading.show();
+  try {
+    Loading.set('Preparing map…', 10);
+    await MapManager.initialize();
+    Loading.set('Loading datasets…', 30);
+
+    // If DataLoader exposes fine-grained events later, map them here.
+    await DataLoader.loadAllData();
+    Loading.set('Building UI…', 65);
+
+    SidebarManager.initialize();
+    ResultsManager.initialize();
+    // Initialize live schematics
+    if (window.SchematicsManager) SchematicsManager.initialize();
+
+    Loading.set('Rendering first view…', 80);
+    switchMode('green');
+    setupEventListeners();
+    updateLayerControls('green');
+
+    Loading.set('Finalizing…', 95);
+    console.log('Application initialized successfully');
+  } catch (error) {
+    console.error('Error initializing application:', error);
+    alert('Error loading application. Please refresh the page.');
+  } finally {
+    Loading.hide();
+  }
 });
+
 
 // Setup Event Listeners
 function setupEventListeners() {
@@ -135,6 +154,36 @@ function setupEventListeners() {
         // Update app.js - Fix region selection functionality
     // Add this to the setupEventListeners function in app.js:
 
+// --- UI occupied rectangles relative to the map container ---
+window.UIRects = (function() {
+  const getMapEl = () => document.getElementById('kazakhstan-map');
+  const toMapCoords = (r) => {
+    const mapEl = getMapEl(); if (!mapEl || !r) return null;
+    const m = mapEl.getBoundingClientRect();
+    return { x: r.left - m.left, y: r.top - m.top, w: r.width, h: r.height };
+  };
+  const vis = (el) => el && el.offsetParent !== null;
+
+  function getSidebarRect() {
+    const el = document.getElementById('sidebar');
+    return vis(el) ? toMapCoords(el.getBoundingClientRect()) : null;
+  }
+  function getSchematicsRect() {
+    const el = document.getElementById('schematics-panel');
+    return vis(el) ? toMapCoords(el.getBoundingClientRect()) : null;
+  }
+  function getResultsRect() {
+    const el = document.getElementById('results-panel');
+    return vis(el) ? toMapCoords(el.getBoundingClientRect()) : null;
+  }
+  // A single “forbidden zones” array
+  function getOccupiedRects() {
+    return [getSidebarRect(), getSchematicsRect(), getResultsRect()].filter(Boolean);
+  }
+  return { getSidebarRect, getResultsRect, getSchematicsRect, getOccupiedRects };
+})();
+
+
 document.getElementById('sidebar-panels').addEventListener('change', function(e) {
     // Handle gas field selection
     if (e.target.id === 'gas-field-select') {
@@ -174,6 +223,14 @@ document.getElementById('sidebar-panels').addEventListener('change', function(e)
                 }, 300);
             }
         }
+        updateActionArea();
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'action-helper') {
+                const el = e.target;
+                el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+            }
+            });
+
     }
     
     // Handle region selection
@@ -196,7 +253,7 @@ document.getElementById('sidebar-panels').addEventListener('change', function(e)
                 if (regionName === selectedName) {
                     // Update app state
                     AppState.selectedRegion = layer.feature;
-                    
+                    updateActionArea();
                     // Simulate click on the region
                     const bounds = layer.getBounds();
                     const center = bounds.getCenter();
@@ -210,7 +267,22 @@ document.getElementById('sidebar-panels').addEventListener('change', function(e)
                         layer.feature,
                         { id: 'regions', name: 'Kazakhstan Regions', dataSource: 'regionsWithBorders', style: LayersConfig.styles.default }
                     );
-                    
+
+                    // After AppState.selectedRegion is set and the map zooms
+                    const mode = (window.AppState && window.AppState.mode) || 'green';
+                    const p = AppState.selectedRegion?.properties || {};
+                    const regionLabel = p.region_name_en || p.name_en || p.region_name || p.name || p.NAME_1 || 'Region';
+                    const resType   = document.getElementById('renewable-source')?.value || 'solar';
+                    const waterRaw  = document.getElementById('water-source-type')?.value || 'freshwater';
+                    const waterType = ({freshwater:'fresh', brackish:'brackish', treated:'waste', groundwater:'ground'})[waterRaw] || 'fresh';
+                    const electrolyzer = document.getElementById('electrolyzer-type')?.value || 'PEM';
+
+                    if (window.SchematicsManager) {
+                    SchematicsManager.setMode(mode);
+                    SchematicsManager.setState({ regionLabel, resType, waterType, electrolyzer });
+                    SchematicsManager.show();
+                    }
+    
                     // Show popup at center
                     setTimeout(() => {
                         PopupManager.showPopup(props, 
@@ -227,6 +299,12 @@ document.getElementById('sidebar-panels').addEventListener('change', function(e)
 
 // Switch Mode (Green, Blue, Derivatives)
 function switchMode(mode) {
+    try {
+    SchematicsManager.setMode(mode);
+    SchematicsManager.setState({ regionLabel: null, gasFieldLabel: null });
+    SchematicsManager.hide();
+    PopupManager.hide();
+    } catch {}
     console.log('Switching to mode:', mode);
     
     // Update state
@@ -249,7 +327,58 @@ function switchMode(mode) {
     
     // Clear previous results
     document.getElementById('results-panel').style.display = 'none';
+
+    // Refresh action area on mode switch
+    updateActionArea();
 }
+
+
+// --- Action area guard: show helper pill until a selection exists ---
+function hasValidSelection() {
+  if (AppState.mode === 'green') {
+    return !!AppState.selectedRegion;
+  } else if (AppState.mode === 'blue') {
+    // treat either selectedPoint (map) or dropdown value as selection
+    const sel = document.getElementById('gas-field-select');
+    return !!AppState.selectedPoint || (sel && sel.value);
+  }
+  return true; // derivatives or others: allow
+}
+
+function updateActionArea() {
+  const calcBtn = document.getElementById('calculate-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const helper  = document.getElementById('action-helper');
+  if (!calcBtn || !resetBtn || !helper) return;
+
+  const ok = hasValidSelection();
+  const msg = AppState.mode === 'green' ? 'Choose a region to Calculate' :
+              (AppState.mode === 'blue' ? 'Choose a field to Calculate' : '');
+
+if (ok) {
+    helper.style.display = 'none';
+    calcBtn.style.display = 'inline-flex';
+    resetBtn.style.display = 'inline-flex';
+} else {
+    helper.textContent = msg;
+    helper.style.display = 'flex';
+    calcBtn.style.display = 'none';
+    resetBtn.style.display = 'none';
+    }
+    
+}
+
+// Fallback: poll for selection changes (covers map-click selections set in MapManager)
+(function selectionPoller(){
+  let lastKey = '';
+  setInterval(() => {
+    const key = `${AppState.mode}|${!!AppState.selectedRegion}|${!!AppState.selectedPoint}`;
+    if (key !== lastKey) {
+      lastKey = key;
+      updateActionArea();
+    }
+  }, 400);
+})();
 
 // Update Layer Controls
 function updateLayerControls(mode) {
@@ -399,6 +528,7 @@ function wireCalculateButton() {
   });
 }
 document.addEventListener('DOMContentLoaded', wireCalculateButton);
+document.addEventListener('DOMContentLoaded', updateActionArea);
 
 async function performCalculation() {
   console.log('Performing calculation...');
@@ -438,7 +568,12 @@ async function performCalculation() {
     AppState.results = results;
     console.log('[KHT] Results ready:', results);
     ResultsManager.displayResults(results, AppState.mode);
-  } catch (err) {
+    try { SchematicsManager.hide(); } catch {}
+    try { PopupManager.reflow?.(); } catch {}
+    window.addEventListener('resize', () => {
+    try { PopupManager.reflow?.(); } catch {}
+    });
+    } catch (err) {
     console.error('Calculation error:', err);
     alert('Calculation error: ' + (err?.message || err));
     try {
@@ -454,12 +589,13 @@ function validateInputs() {
   const mode = AppState?.mode || 'green';
   const hasRegion = !!(AppState?.selectedRegion);
 
-  if (!hasRegion) {
-    console.warn('[KHT] No region selected.');
-    // still allow calculation
-  }
-
   if (mode === 'green') {
+    if (!hasRegion) {
+      console.warn('[KHT] No region selected. Blocking calculation.');
+      const helper = document.getElementById('action-helper');
+      if (helper) { helper.textContent = 'Choose a region to Calculate'; helper.style.display = 'flex'; helper.classList.add('shake'); }
+      return false;
+    }
     const resSel = document.getElementById('renewable-source');
     const elzSel = document.getElementById('electrolyzer-type');
     const drInp  = document.getElementById('discount-rate');
@@ -472,6 +608,15 @@ function validateInputs() {
     return true;
   }
 
+  if (mode === 'blue') {
+    const hasField = !!AppState.selectedPoint || !!document.getElementById('gas-field-select')?.value;
+    if (!hasField) {
+      console.warn('[KHT] No field selected. Blocking calculation.');
+      const helper = document.getElementById('action-helper');
+      if (helper) { helper.textContent = 'Choose a field to Calculate'; helper.style.display = 'flex'; helper.classList.add('shake'); }
+      return false;
+    }
+  }
   return true; // for other modes keep permissive
 }
 
@@ -503,6 +648,10 @@ function collectParameters() {
 
 // Reset Application
 function resetApplication() {
+    try {
+    SchematicsManager.setState({ regionLabel: null, gasFieldLabel: null });
+    SchematicsManager.hide();
+    } catch {}
     console.log('Resetting application...');
     
     // Reset inputs
@@ -523,6 +672,9 @@ function resetApplication() {
     
     // Hide results
     document.getElementById('results-panel').style.display = 'none';
+
+    // Refresh action area
+    updateActionArea();
     
     // Reset to green mode
     switchMode('green');

@@ -49,9 +49,18 @@ const BlueHydrogenCalculator = {
             h2s: 0.02
         }
     },
+
+    
     
     // Main calculation function
     async calculate(params) {
+        // Guard: require a selected gas field
+        const selectedFieldOk = (window.AppState && (AppState.selectedPoint)) || document.getElementById('gas-field-select')?.value;
+        if (!selectedFieldOk) {
+            console.warn('[KHT] Blue: no field selected. Blocking calculation.');
+            return null;
+        }
+
         console.log('Calculating blue hydrogen production...', params);
         
         // Extract parameters
@@ -167,6 +176,8 @@ const BlueHydrogenCalculator = {
     },
     
     // Helper functions (reuse from green hydrogen calculator)
+
+    
     calculateLCOH(capex, annualOpex, annualProduction, discountRate, lifetime) {
         const r = discountRate / 100;
         const crf = (r * Math.pow(1 + r, lifetime)) / (Math.pow(1 + r, lifetime) - 1);
@@ -202,4 +213,5 @@ const BlueHydrogenCalculator = {
         const r = discountRate / 100;
         return annualAmount * ((1 - Math.pow(1 + r, -years)) / r);
     }
+    
 };

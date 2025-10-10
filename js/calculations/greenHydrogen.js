@@ -43,7 +43,13 @@ const GreenHydrogenCalculator = {
   // Main calculation pipeline
   // ----------------------------
   async calculate() {
-    const inputs = this.gatherInputs();
+    
+    // Guard: require a selected region
+    if (!window.AppState || !AppState.selectedRegion) {
+      console.warn('[KHT] Green: no region selected. Blocking calculation.');
+      return null;
+    }
+const inputs = this.gatherInputs();
     const regional = this.getRegionalData(inputs.regionLabel);
 
     const resCalc = this.calculateRESCapacity(inputs, regional);

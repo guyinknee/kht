@@ -69,10 +69,30 @@ const ResultsManager = {
         const content = document.getElementById('tab-content');
         
         let html = '<div class="tab-content" id="summary-content">';
-        
+        const snap = window.SchematicsManager?.snapshotSVG?.();
+        if (snap) {
+        html += `
+            <div class="schem-snapshot-card" style="
+            border:1px solid #e5e7eb;border-radius:10px;padding:10px;margin:0 0 20px 0;
+            background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.04);
+            ">
+            <div style="font-weight:600;font-size:14px;margin-bottom:8px;">Process schematic</div>
+            <div class="schem-snapshot-wrap" style="
+                line-height:0;               /* removes extra inline SVG space */
+                overflow:hidden;             /* no stray scrollbars */
+                display:flex;                /* center if aspect changes */
+                align-items:center;
+                justify-content:center;
+            ">
+                ${snap}
+            </div>
+            </div>
+        `;
+        }
         // TOP ROW: Key Metric Cards (4 cards)
         html += '<div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">';
-        
+
+
         if (mode === 'derivatives') {
             html += `
                 <div class="metric-card">

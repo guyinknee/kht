@@ -22,15 +22,23 @@ const SidebarManager = {
     if (!container) return;
     container.innerHTML = '';
 
-    // Only green mode panels are supported in this build
-    container.innerHTML = this.getGreenHydrogenPanels();
+    if (mode === 'green') {
+        container.innerHTML = this.getGreenHydrogenPanels();
+    } else if (mode === 'blue') {
+        container.innerHTML = this.getBlueHydrogenPanels();
+    } else if (mode === 'derivatives') {
+        container.innerHTML = this.getDerivativesPanels();
+    } else {
+        container.innerHTML = '<div class="panel"><p>Mode not supported.</p></div>';
+    }
 
-    // Append common economics panel
+    // Append shared economics
     container.innerHTML += this.getEconomicPanel();
 
-    // Activate controls/toggles
+    // Activate controls/toggles for whichever mode is active
     this.initializeControls();
-  },
+    },  
+
 
   // --------- GREEN HYDROGEN PANELS (with procurement toggle) ----------
   getGreenHydrogenPanels() {
@@ -143,74 +151,72 @@ const SidebarManager = {
     
     // Blue Hydrogen Panels
     getBlueHydrogenPanels() {
-        return `
-            <div class="panel blue-mode-panel">
-                <h3 class="panel-title">Gas Field Selection</h3>
-                <div class="form-group">
-                    <label>Select Gas Field</label>
-                    <select id="gas-field-select">
-                        <option value="">Select a field...</option>
-                        ${this.getGasFieldOptions()}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Gas Composition</label>
-                    <div id="gas-composition-display" style="padding: 10px; background: #f5f5f5; border-radius: 4px;">
-                        <div>CH₄: <span id="ch4-percent">--</span>%</div>
-                        <div>C₂H₆: <span id="c2h6-percent">--</span>%</div>
-                        <div>C₃H₈: <span id="c3h8-percent">--</span>%</div>
-                        <div>C₄H₁₀: <span id="c4h10-percent">--</span>%</div>
-                        <div>C₅H₁₂: <span id="c5h12-percent">--</span>%</div>
-                        <div>Other: <span id="other-percent">--</span>%</div>
-                    </div>
-                </div>
+    return `
+        <div class="panel blue-mode-panel">
+        <h3 class="panel-title">Gas Field</h3>
+        <div class="form-group">
+            <label>Select Gas Field</label>
+            <select id="gas-field-select">
+            <option value="">Select a field…</option>
+            ${this.getGasFieldOptions()}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Gas Composition (from field)</label>
+            <div id="gas-composition-display" style="padding:10px;background:#f5f5f5;border-radius:6px">
+            <div>CH₄: <span id="ch4-percent">--</span>%</div>
+            <div>C₂H₆: <span id="c2h6-percent">--</span>%</div>
+            <div>C₃H₈: <span id="c3h8-percent">--</span>%</div>
+            <div>C₄H₁₀: <span id="c4h10-percent">--</span>%</div>
+            <div>C₅H₁₂: <span id="c5h12-percent">--</span>%</div>
+            <div>Other: <span id="other-percent">--</span>%</div>
             </div>
-            
-            <div class="panel blue-mode-panel">
-                <h3 class="panel-title">Reforming Technology</h3>
-                <div class="form-group">
-                    <label>Technology Type</label>
-                    <select id="reforming-tech">
-                        <option value="SMR">Steam Methane Reforming (SMR)</option>
-                        <option value="ATR">Autothermal Reforming (ATR)</option>
-                        <option value="POX">Partial Oxidation (POX)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Plant Capacity (MW)</label>
-                    <input type="number" id="plant-capacity" value="100" min="10" max="500" step="10">
-                </div>
-                <div class="form-group">
-                    <label>Carbon Capture Rate (%)
-                        <span class="info-icon" data-tooltip="Percentage of CO₂ captured">?</span>
-                    </label>
-                    <input type="number" id="capture-rate" value="90" min="0" max="99" step="5">
-                </div>
-                <div class="form-group">
-                    <label>Steam to Carbon Ratio</label>
-                    <input type="number" id="steam-carbon-ratio" value="3" min="2" max="5" step="0.1">
-                </div>
-            </div>
-            
-            <div class="panel blue-mode-panel">
-                <h3 class="panel-title">CO₂ Management</h3>
-                <div class="form-group">
-                    <label>CO₂ Storage Site</label>
-                    <select id="co2-storage-select">
-                        <option value="">Select storage site...</option>
-                        ${this.getCO2StorageOptions()}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Transport Distance (km)</label>
-                    <input type="number" id="co2-transport-distance" value="50" min="0" max="500" step="10">
-                </div>
-                <div class="form-group">
-                    <label>CO₂ Price ($/tonne)</label>
-                    <input type="number" id="co2-price" value="50" min="0" max="200" step="10">
-                </div>
-            </div>
-        `;
+        </div>
+        </div>
+
+        <div class="panel blue-mode-panel">
+        <h3 class="panel-title">Sizing</h3>
+        <div class="form-group">
+            <label>Sizing Mode</label>
+            <select id="blue-sizing-mode">
+            <option value="all" selected>Use all available gas (from field)</option>
+            <option value="custom">Specify amount</option>
+            </select>
+        </div>
+        <div class="form-group" id="blue-gas-amount-wrap" style="display:none;">
+            <label>Gas Amount (m³/hr)</label>
+            <input type="number" id="blue-gas-amount" value="1000" min="1" step="1">
+        </div>
+        <div class="form-hint" id="blue-gas-amount-hint" style="font-size:12px;color:#5b6b7a"></div>
+        </div>
+
+        <div class="panel blue-mode-panel">
+        <h3 class="panel-title">Process Options</h3>
+        <div class="form-group">
+            <label>Reformer Technology</label>
+            <select id="reforming-tech">
+            <option value="SMR" selected>Steam Methane Reforming (SMR)</option>
+            <option value="ATR">Autothermal Reforming (ATR)</option>
+            <option value="POX">Partial Oxidation (POX)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>CO₂ Capture Rate</label>
+            <select id="capture-rate">
+            <option value="90" selected>90%</option>
+            <option value="95">95%</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>CO₂ Fate</label>
+            <select id="co2-fate">
+            <option value="eor" selected>Enhanced Oil Recovery (EOR)</option>
+            <option value="storage">Permanent Storage</option>
+            </select>
+        </div>
+        </div>
+    `;
     },
     
     // Derivatives Panels
@@ -411,6 +417,48 @@ const SidebarManager = {
                 }
             });
         }
+
+        // BLUE: show/hide custom gas amount
+        const blueSizing = document.getElementById('blue-sizing-mode');
+        const blueAmtWrap = document.getElementById('blue-gas-amount-wrap');
+        const blueAmt = document.getElementById('blue-gas-amount');
+        const blueHint = document.getElementById('blue-gas-amount-hint');
+        const gasFieldSel = document.getElementById('gas-field-select');
+
+        function refreshBlueSizingUI() {
+        if (!blueSizing) return;
+        const mode = blueSizing.value;
+        if (mode === 'custom') {
+            blueAmtWrap && (blueAmtWrap.style.display = 'block');
+            blueHint && (blueHint.textContent = '');
+        } else {
+            blueAmtWrap && (blueAmtWrap.style.display = 'none');
+            // show info about the field’s available gas if selected
+            if (gasFieldSel && gasFieldSel.value) {
+            const f = AppState.data.oilGasFields?.find(x => x.id == gasFieldSel.value || x.id === parseInt(gasFieldSel.value));
+            if (f && typeof f.gas_amount !== 'undefined') {
+                blueHint && (blueHint.textContent = `Using field capacity: ${f.gas_amount} m³/hr`);
+            } else {
+                blueHint && (blueHint.textContent = '');
+            }
+            } else {
+            blueHint && (blueHint.textContent = '');
+            }
+        }
+        }
+
+        if (blueSizing) {
+        blueSizing.addEventListener('change', refreshBlueSizingUI);
+        refreshBlueSizingUI();
+        }
+
+        // update composition + hint when field changes
+        if (gasFieldSel) {
+        gasFieldSel.addEventListener('change', () => {
+            this.updateGasComposition(gasFieldSel.value);
+            refreshBlueSizingUI();
+        });
+        }
     },
     
     // Update derivative feedstock requirements
@@ -487,6 +535,51 @@ const SidebarManager = {
 
 
     // Dispatch any dependent UI logic
+
+    // --- NEW: notify schematics + collapse results on any change ---
+    if (window.ResultsManager) {
+      // If results are visible, collapse them when any input changes
+      const panel = document.getElementById('results-panel');
+      if (panel && panel.classList.contains('show')) {
+        panel.classList.remove('show');
+      }
+    }
+    if (window.SchematicsManager) {
+      const mode = (window.AppState && window.AppState.mode) || this.currentMode || 'green';
+      SchematicsManager.setMode(mode);
+      // Map DOM values -> schematic state
+        const props = window.AppState?.selectedRegion?.properties || {};
+        const regionLabel = props.region_name_en || props.name_en || props.region_name || props.name || props.NAME_1;
+        const resSel = document.getElementById('renewable-source')?.value || 'solar';
+
+        // Map sidebar water values -> schematic icon keys
+        const waterRaw = document.getElementById('water-source-type')?.value || 'freshwater';
+        const waterSel = ({freshwater:'fresh', brackish:'brackish', treated:'waste', groundwater:'ground'})[waterRaw] || 'fresh';
+
+        // Electrolyzer
+        const elySel = document.getElementById('electrolyzer-type')?.value || 'PEM';
+
+        // Blue-mode mappings
+        const reformSel = document.getElementById('reforming-tech')?.value || 'SMR';
+        const fateRaw   = document.getElementById('co2-fate')?.value || 'storage';  // 'eor' | 'storage'
+        const co2DispSel = fateRaw === 'eor' ? 'EOR' : 'CCS';
+
+        // Gas field label (text of the selected option)
+        const gfSel = document.getElementById('gas-field-select');
+        const gasFieldLabel = gfSel && gfSel.value ? (gfSel.options[gfSel.selectedIndex].textContent || 'Gas Field') : null;
+
+        const patch = {
+        gasFieldLabel,
+        resType: resSel,
+        waterType: waterSel,
+        electrolyzer: elySel,
+        reformer: reformSel,
+        co2Disposition: co2DispSel
+        };
+        if (regionLabel) patch.regionLabel = regionLabel; // only set if truthy
+        SchematicsManager.setState(patch);
+                }
+
     if (id === 'water-source-type') this.updateWaterTreatment(value);
     if (id === 'electrolyzer-type') this.updateElectrolyzerDefaults(value);
 

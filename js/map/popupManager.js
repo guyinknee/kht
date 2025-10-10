@@ -31,7 +31,14 @@ const PopupManager = {
         
         // Store current popup data
         this.currentPopup = { data, config };
+        this.currentLatLng = latlng;
     },
+    // Re-position the visible popup after layout changes (results open, resize, etc.)
+    reflow() {
+        const popup = document.getElementById('info-popup');
+        if (!popup || popup.style.display === 'none' || !this.currentLatLng) return;
+        this.positionPopup(popup, this.currentLatLng);
+        },
     
     // Get popup title
     getPopupTitle(data, config) {
@@ -538,30 +545,95 @@ const PopupManager = {
     
     // Position popup near click location
     positionPopup(popup, latlng) {
-        if (!latlng) return;
-        
-        const point = MapManager.map.latLngToContainerPoint(latlng);
-        const mapSize = MapManager.map.getSize();
-        const popupWidth = 450;  // Max width
-        const popupHeight = 600; // Max height
-        
-        let left = point.x + 20;
-        let top = point.y - 150; // Position higher to accommodate larger popup
-        
-        // Adjust if popup would go off screen
-        if (left + popupWidth > mapSize.x) {
-            left = point.x - popupWidth - 20;
+        if (!latlng || !MapManager?.map) return;
+
+        const map = MapManager.map;
+        const mapSize = map.getSize(); // {x, y}
+        const anchor = map.latLngToContainerPoint(latlng); // {x, y}
+
+        // Popup nominal size (match your CSS max-w/height)
+        const popupWidth  = 450;
+        const popupHeight = 600;
+        const margin = 12;
+
+        // Occupied zones (sidebar, schematics, results) in map coords
+        const forbidden = (window.UIRects?.getOccupiedRects?.() || []);
+
+        // Helper: does a rect intersect any forbidden zone?
+        const intersectsForbidden = (rect) => {
+            return forbidden.some(f => {
+            const a = rect, b = f;
+            return !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
+            });
+        };
+
+        // Candidate positions: prefer RIGHT, flip to LEFT if overflow/blocked
+        const candidates = [
+            { // right side
+            x: anchor.x + margin,
+            y: Math.min(Math.max(anchor.y - popupHeight/2, margin), mapSize.y - popupHeight - margin)
+            },
+            { // left side
+            x: anchor.x - popupWidth - margin,
+            y: Math.min(Math.max(anchor.y - popupHeight/2, margin), mapSize.y - popupHeight - margin)
+            }
+        ];
+
+        // Pick the first candidate that fits within map AND not overlapping forbidden
+        let chosen = null;
+        for (const c of candidates) {
+            const rect = { x: c.x, y: c.y, w: popupWidth, h: popupHeight };
+            const fitsMap = c.x >= margin && c.x + popupWidth <= mapSize.x - margin;
+            if (fitsMap && !intersectsForbidden(rect)) { chosen = c; break; }
         }
-        if (top < 20) {
-            top = 20;
+
+        // If neither candidate is perfect, we’ll pan to create space for the preferred (right) candidate
+        if (!chosen) {
+            // target is first candidate (right)
+            const target = candidates[0];
+            const rect = { x: target.x, y: target.y, w: popupWidth, h: popupHeight };
+
+            // Compute minimal pan to keep rect within map bounds AND outside forbidden areas
+            let dx = 0, dy = 0;
+
+            // Bounds against map edges
+            if (rect.x < margin) dx += (margin - rect.x);
+            if (rect.x + rect.w > mapSize.x - margin) dx -= (rect.x + rect.w - (mapSize.x - margin));
+            if (rect.y < margin) dy += (margin - rect.y);
+            if (rect.y + rect.h > mapSize.y - margin) dy -= (rect.y + rect.h - (mapSize.y - margin));
+
+            // Nudge away from each forbidden rect if overlapping
+            forbidden.forEach(f => {
+            const overlapX = Math.max(0, Math.min(rect.x + rect.w, f.x + f.w) - Math.max(rect.x, f.x));
+            const overlapY = Math.max(0, Math.min(rect.y + rect.h, f.y + f.h) - Math.max(rect.y, f.y));
+            if (overlapX > 0 && overlapY > 0) {
+                // Push horizontally away from the larger overlap side
+                if (rect.x < f.x) dx -= overlapX + margin; else dx += overlapX + margin;
+            }
+            });
+
+            // Apply pan (smooth ≤ 250ms)
+            if (dx !== 0 || dy !== 0) {
+            map.panBy([dx, dy], { animate: true, duration: 0.25 });
+            // Recompute anchor after pan, then place
+            setTimeout(() => {
+                const a2 = map.latLngToContainerPoint(latlng);
+                const x = a2.x + margin; // favor right after pan
+                const y = Math.min(Math.max(a2.y - popupHeight/2, margin), mapSize.y - popupHeight - margin);
+                popup.style.left = `${x}px`;
+                popup.style.top  = `${y}px`;
+            }, 260);
+            return;
+            } else {
+            chosen = target; // no pan needed, just place
+            }
         }
-        if (top + popupHeight > mapSize.y) {
-            top = mapSize.y - popupHeight - 20;
-        }
-        
-        popup.style.left = left + 'px';
-        popup.style.top = top + 'px';
-    },
+
+        // Place popup at chosen spot
+        popup.style.left = `${chosen.x}px`;
+        popup.style.top  = `${chosen.y}px`;
+        },
+
     
     // Helper functions
     formatNumber(num) {
