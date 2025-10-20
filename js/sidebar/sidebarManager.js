@@ -163,15 +163,6 @@ const SidebarManager = {
         </div>
 
         <div class="form-group">
-            <label>Gas Composition (from field)</label>
-            <div id="gas-composition-display" style="padding:10px;background:#f5f5f5;border-radius:6px">
-            <div>CH₄: <span id="ch4-percent">--</span>%</div>
-            <div>C₂H₆: <span id="c2h6-percent">--</span>%</div>
-            <div>C₃H₈: <span id="c3h8-percent">--</span>%</div>
-            <div>C₄H₁₀: <span id="c4h10-percent">--</span>%</div>
-            <div>C₅H₁₂: <span id="c5h12-percent">--</span>%</div>
-            <div>Other: <span id="other-percent">--</span>%</div>
-            </div>
         </div>
         </div>
 
