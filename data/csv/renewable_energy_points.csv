@@ -8,3 +8,12 @@ id,name,type,latitude,longitude,capacity_mw,annual_generation_gwh,capacity_facto
 7,WindEnergyTech Isatay,wind,46.916667,50.652778,52.8,138,0.30,operational,2022,WindEnergyTechnologies LLP,Atyrau
 8,Zhelenergo Kensahara,wind,50.666667,56.577500,0.45,1.2,0.30,operational,2020,Zhelenergo LLP,Aktobe
 9,ArmWind Badamsha,wind,50.498700,58.260180,48,126,0.30,operational,2023,ArmWind LLP,Aktobe
+10,Saran,solar,49.801,72.870,100,13.67,0.20,operational,2020,Saran SES LLP,Karagandy
+11,Eneverse Kunkuat,solar,43.96642,77.12480,100,18,0.20,operational,2020,Eneverse Kunkuat LLP,Almaty
+12,CATEC Green Energy,wind,51.256342,71.86131,100,36,0.30,operational,2020,CATEC Green Energy LLP,Akmola
+13,MKat Shu Green,solar,43.5916,73.7057,100,19,0.20,operational,2020,MKat Shu Green LLP,Zhambyl
+14,KB Enterprises,solar,50.79556,71.45332,100,16.43,0.20,operational,2020,KB Enterprises SES Nura LLP,Akmola
+15,Zhanatas WES,wind,43.5132,69.647305,100,44.22,0.30,operational,2020,Zhanatas WES LLP,Zhambyl
+16,Abay 1,wind,46.9251,79.6293,100,39.3,0.30,operational,2020,Abay 1 WES 100MW LLP,Abay
+17,Shokpar,wind,43.4927,69.7620,100,37.29,0.30,operational,2020,Shokpar WES LLP,Zhambyl
+18,Mezgilder Qushteri,47.49106,67.5888,100,38,0.30,operational,2020,Mezgilder Qushteri LLP,Ulytau
