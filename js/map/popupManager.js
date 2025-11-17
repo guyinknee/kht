@@ -135,7 +135,7 @@ const PopupManager = {
                 <span class="popup-metric-value">${regionalData?.wastewater_mln_m3 || 'N/A'}</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">💧 Total Available:</span>
+                <span class="popup-metric-label">💧 Total:</span>
                 <span class="popup-metric-value" style="font-weight: bold; color: var(--blue);">
                     ${regionalData ? 
                     (parseFloat(regionalData.freshwater_mln_m3 || 0) + 
