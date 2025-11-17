@@ -3,7 +3,7 @@ const SidebarManager = {
   currentMode: 'green',
 
   initialize() {
-    console.log('Initializing sidebar...');
+    console.log('Initializing sidebar....');
     this.setupEventHandlers();
   },
 
