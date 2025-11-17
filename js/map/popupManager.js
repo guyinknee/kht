@@ -119,7 +119,7 @@ const PopupManager = {
         <div class="popup-section">
             <div class="popup-section-title">Water Resources (Million m³/year)</div>
             <div class="popup-metric">
-                <span class="popup-metric-label">💧 Freshwater:</span>
+                <span class="popup-metric-label">💧 Surface Freshwater:</span>
                 <span class="popup-metric-value">${regionalData?.freshwater_mln_m3 || 'N/A'}</span>
             </div>
             <div class="popup-metric">
@@ -1029,7 +1029,7 @@ const PopupManager = {
     const ctx = el.getContext('2d');
 
     const slices = [
-        { label: 'Freshwater',  value: this.num0(regionalData?.freshwater_mln_m3)  },
+        { label: 'Surface Freshwater',  value: this.num0(regionalData?.freshwater_mln_m3)  },
         { label: 'Groundwater', value: this.num0(regionalData?.groundwater_mln_m3) },
         { label: 'Brackish',    value: this.num0(regionalData?.brackish_water_mln_m3) },
         { label: 'Treated WW',  value: this.num0(regionalData?.wastewater_mln_m3) }
