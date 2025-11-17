@@ -56,7 +56,7 @@ const SidebarManager = {
         <div class="form-group">
           <label>Water Type</label>
           <select id="water-source-type">
-            <option value="freshwater">Freshwater</option>
+            <option value="freshwater">Surface Freshwater</option>
             <option value="brackish">Brackish</option>
             <option value="treated">Treated Wastewater</option>
             <option value="groundwater">Groundwater</option>
